@@ -10,6 +10,10 @@ public class Utils {
             }
         }
     }
+    public void doubleLineSep(){
+        lineSep();
+        lineSep();
+    }
     public static class PostComparator implements Comparator<Post>{
         @Override
         public int compare(Post p1, Post p2){
