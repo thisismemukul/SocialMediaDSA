@@ -2,26 +2,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserManager {
-    private Map<String, User> users;
+    private Map<String, User> usersByUsername;
+    private Map<String, User> usersById;
 
     public UserManager() {
-        users = new HashMap<String, User>();
-    }
-    public UserManager(Map<String, User> users) {
-        this.users = users;
+        usersByUsername = new HashMap<>();
+        usersById = new HashMap<>();
     }
 
     public User registerUser(String username) {
-        if (users.containsKey(username)) {
+        if (usersByUsername.containsKey(username)) {
             throw new IllegalArgumentException("Username is already in use");
         }
         User user = new User();
         user.setUsername(username);
-        users.put(username, user);
+        usersByUsername.put(username, user);
+        usersById.put(user.getId(), user);
         return user;
     }
-    public User findUser(String username) {
-        return users.get(username);
+
+    public User findUserByUsername(String username) {
+        return usersByUsername.get(username);
     }
 
+    public User findUserById(String id) {
+        return usersById.get(id);
+    }
 }

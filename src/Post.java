@@ -24,6 +24,7 @@ public class Post {
         this.title = title;
         this.content = content;
         this.author = author;
+        this.likes = new HashSet<>();
         this.createdAt = LocalDateTime.now();
     }
 
@@ -45,9 +46,7 @@ public class Post {
     public User getAuthor() {
         return author;
     }
-    public void setLikes(Set<User> likes) {
-        this.likes = likes;
-    }
+
     public void likePost(User user){
         if (likes.contains(user)){
             throw new IllegalArgumentException("You have already liked this post");

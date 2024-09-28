@@ -1,4 +1,6 @@
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class Main {
@@ -11,6 +13,11 @@ public class Main {
         User mukul = userManager.registerUser("mukul");
         User bucky = userManager.registerUser("bucky");
         User captain = userManager.registerUser("captain");
+
+        System.out.println(userManager.findUserByUsername(mukul.getUsername()));
+        utils.lineSep();
+        System.out.println(userManager.findUserById(bucky.getId()));
+        utils.lineSep();
 
         bucky.follow(mukul);
         bucky.follow(captain);
@@ -53,6 +60,23 @@ public class Main {
                 "Meesho's Upcoming diwali sale.",
                 "Visit website for more",
                 mukul));
+
+        utils.lineSep();
+        System.out.println("Like Post 2");
+        post2.likePost(mukul);
+        post2.likePost(bucky);
+        post2.likePost(captain);
+
+        utils.lineSep();
+        System.out.println("Get Like Count of Post 2");
+        System.out.println(post2.getLikeCount());
+
+        utils.lineSep();
+        System.out.println("Get who liked Post 2");
+        System.out.println(post2.getLikeCount());
+        for (User user : post2.getLikes()) {
+            System.out.println(user.toString());
+        }
 
         utils.lineSep();
         System.out.println("Get Feed of "+ mukul.getUsername());
