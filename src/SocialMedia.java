@@ -5,27 +5,21 @@ public class SocialMedia {
 
     public static void main(String[] arg) {
         try {
-            UserManagement userManagement = new UserManagement();
+            UserManagement userManagement = UserManagement.getUserManagementInstance(); // Singleton
             UserMain mukul = userManagement.registerUser("mukul");
             UserMain bucky = userManagement.registerUser("bucky");
             UserMain captain = userManagement.registerUser("captain");
             UserMain ironman = userManagement.registerUser("ironman");
-            // UserMain ironman1 = userManagement.registerUser("ironman"); //throw exc
+
             mukul.follow(bucky, userManagement);
-            mukul.follow(new UserMain(), userManagement);
             mukul.follow(captain, userManagement);
+
             UserFeedMain userFeedMain = new UserFeedMain();
             List<PostMain> userFeedOfMukul = userFeedMain.getUserFeed(mukul);
             System.out.println("UserFeedOfMukul: " + userFeedOfMukul);
             bucky.createPost("I'm Winter soldier", "If you know you now");
-            captain.createPost("I'm Winter soldier", "If you know you now");
-//            List<PostMain> updatedUserFeedOfMukul = userFeedMain.getUserFeed(mukul);
-//            for (PostMain post : updatedUserFeedOfMukul) {
-//                System.out.println("Updated UserFeedOfMukul: " +
-//                        post.getAuthor().getUsername() + ": " +
-//                        post.getTitle() + " -> " +
-//                        post.getContent());
-//            }
+            captain.createPost("I'm Captain America", "Avengers Assemble");
+            ironman.createPost("I'm Iron Man", "Tony");
 
             List<PostMain> topPosts = userFeedMain.getTopPostsFromFeed(mukul);
             System.out.println("Top Posts in Mukul's Feed:");
@@ -40,9 +34,7 @@ public class SocialMedia {
             e.printStackTrace();
         }
     }
-
 }
-
 
 class UserMain {
     private String id;
@@ -59,8 +51,7 @@ class UserMain {
         this.posts = new LinkedList<>();
     }
 
-    //getter setter
-
+    // Getters and setters
     public String getId() {
         return id;
     }
@@ -85,7 +76,7 @@ class UserMain {
         this.username = username;
     }
 
-    //follow
+    // Follow method
     public void follow(UserMain user, UserManagement userManagement) {
         if (!userManagement.getUserById(user.getId())) {
             System.out.println("User not found");
@@ -105,19 +96,17 @@ class UserMain {
             System.out.println("Following " + user.getUsername());
         }
     }
+
     public void createPost(String title, String content) {
         PostMain post = new PostMain(title, content, this);
         addPost(post);
     }
 
     public void addPost(PostMain post) {
-        if (!posts.contains(post)) {
-            posts.add(post);
-            System.out.println(username + " Posted a new Post -> " + post.getId());
-        }
+        posts.add(post);
+        System.out.println(username + " Posted a new Post -> " + post.getId());
     }
 }
-
 
 class PostMain {
     private String id;
@@ -127,15 +116,6 @@ class PostMain {
     private Set<UserMain> likes;
     private LocalDateTime createdAt;
 
-    public PostMain() {
-        this.id = UUID.randomUUID().toString();
-        this.title = "";
-        this.content = "";
-        this.author = new UserMain();
-        this.likes = new HashSet<UserMain>();
-        this.createdAt = LocalDateTime.now();
-    }
-
     public PostMain(String title, String content, UserMain author) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
@@ -144,8 +124,8 @@ class PostMain {
         this.likes = new HashSet<>();
         this.createdAt = LocalDateTime.now();
     }
-    //Getter Setter
 
+    // Getters
     public String getId() {
         return id;
     }
@@ -161,19 +141,27 @@ class PostMain {
     public String getContent() {
         return content;
     }
-    public LocalDateTime getCreatedAt(){
+
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
 }
 
 class UserManagement {
+    private static UserManagement userManagement;
     private Map<String, UserMain> usersByUsername;
     private Map<String, UserMain> usersById;
 
-    public UserManagement() {
+    private UserManagement() {
         this.usersByUsername = new HashMap<>();
         this.usersById = new HashMap<>();
+    }
+
+    public static UserManagement getUserManagementInstance() {
+        if (userManagement == null) {
+            userManagement = new UserManagement();
+        }
+        return userManagement;
     }
 
     public UserMain registerUser(String username) {
@@ -208,9 +196,25 @@ class UserFeedMain {
 
     public List<PostMain> getTopPostsFromFeed(UserMain user) {
         List<PostMain> allPosts = getUserFeed(user);
-        allPosts.sort((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()));
-        return allPosts.size() > 10 ? allPosts.subList(0, 10) : allPosts;
+        PriorityQueue<PostMain> topPostsQueue = new PriorityQueue<>(new UtilsMain.PostComparator());
+        topPostsQueue.addAll(allPosts);
+
+        List<PostMain> topPosts = new ArrayList<>();
+//        for (int i = 0; i < Math.min(10, topPostsQueue.size()); i++) {
+//            topPosts.add(topPostsQueue.poll());
+//        }
+        while (!topPostsQueue.isEmpty()) {
+            topPosts.add(topPostsQueue.poll());
+        }
+        return topPosts;
     }
 }
 
-
+class UtilsMain {
+    public static class PostComparator implements Comparator<PostMain> {
+        @Override
+        public int compare(PostMain post1, PostMain post2) {
+            return post2.getCreatedAt().compareTo(post1.getCreatedAt());
+        }
+    }
+}
